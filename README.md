@@ -1,5 +1,5 @@
 # syscall
-A (potentially) operating system independent system call interface for Go
+An example operating system independent system call interface for Go
 
 This package aims to solve a single problem. 
 The golang.org/x/sys/unix package provides an interface to the UNIX system calls
@@ -15,10 +15,6 @@ meaning you can write and test it under one operating system and run it without 
 on another.
 Most of the Java teams I worked in developed software under Windows
 which was then run under UNIX or Linux.
-(Oddly,
-there was usually a continuous integration system that built
-and tested the system on the target operating system before it was run.
-The project managers didn't seem to believe the publicity.)
 
 Go has built-in cross compilers,
 so it could also be write once, run anywhere,
@@ -44,30 +40,24 @@ that are guaranteed to throw errors.
 
 An example of this package in use is my go-stripe-payments website.  
 Running an HTTPS server requires a certificate,
-which is impractical for a local Windows PC.
+which is impractical for the Windows PC on my desk.
 For example, the certificate should only be readable by the admin user
 so the software needs to run under that user to read them.
 Running a web server under the admin user is not a great idea,
 so the server should read the cerificate when it starts up
-and then switch to a less privileged state.
-Doing this in Go requires the use of features that only exist on UNIX and Linux systems.
+and then switch to  running as a less privileged user.
+I'm happy to do all this on my Linux target system,
+rather less willing to make it all work under Windows,
+when I can do most of my system testing using HTTP.
 
-(Having said that,
-HTTPS servers that run under Windows exist,
-so it's clearly possible to build one.
-It's just that I don't need to find out how to to do it,
-something for which I'm very grateful.)
+Using this package, my software still compiles under Windows.
+I just need to avoid using some of the features when I run it
+in that environment.
 
-Crucially, my software still compiles under Windows.
-I just need to avoid using some of the features when I run it there.
-An HTTP server doesn't need any infrastructure
-so I can do a lot of system testing under Windows before
-I deploy it on my Linux target.
-
-I describe this solution as only potentially an operating system independent solution because
-(a) I don't plan to implement it on all systems, just the ones I use (initially Windows and Linux)
-and (b) I only plan to implement calls that I need for my own work.
-
+My solution only implements functions that I need for my own work,
+initially Getuid and Setuid.
+I don't plan to implement it on all systems, 
+just the ones I use (initially Windows and Linux).
 If you want something more,
 feel free to fork the project or use it as a guide to write your own.
 Please don't create issues asking me to add functions.  The answer will be no, please create your own project.
