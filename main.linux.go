@@ -17,6 +17,8 @@
 package portablesyscall
 
 import (
+	"syscall"
+
 	"golang.org/x/sys/unix"
 )
 
@@ -24,10 +26,8 @@ import (
 // for that system ("windows", "linux" or whatever).
 const OSName = "linux"
 
-// Getuid gets the current user ID.  Undder Linux it should always work.
-func Getuid() (int, error) {
-	return unix.Getuid(), nil
-}
+type Timespec syscall.Timespec
+type Stat_t syscall.Stat_t
 
 // Setuid switches to the user with the given user ID or returns an error.
 func Setuid(targetID int) error {

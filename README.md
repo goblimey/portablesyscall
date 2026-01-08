@@ -1,12 +1,17 @@
 # portablesyscall
 An example operating system independent system call interface for Go
 
-This package aims to solve a single problem. 
-The golang.org/x/sys/unix package provides an interface to the UNIX system calls
+The syscall and golang.org/x/sys/unix packages provide interfaces to the UNIX system calls
 but the contents is different on different systems.
 Functions may or not be present in the package for a particular operating system.
-In particular, the functions are not available at all under Windows,
-which means that a program that uses them doesn't even compile in that environment.
+In particular, only some of the functions are available under Windows,
+which means that a program that tries to use one of the missing functions
+doesn't even compile in that environment.
+For example, the windows version of syscall has a Getuid but no Setuid.
+It also has a Chown, which always returns an error.
+
+Other missing material includes the stat_t structure, which is used to find the owner
+of a file under Linux.
 
 I was a Java programmer for many years and one of the features of Java is that compiles to 
 a low-level form which is then interpreted.
@@ -24,12 +29,12 @@ My solution
 is to have a single package with a 
 version for each system that I work with.
 Each file of source code starts with a build tag
-that means that it is compiled on its target system
-and other files containing other versions of the same functions are ignored.
+so the appropriate version is compiled on its target system.
 The compiler sorts out which one to use.
-It provides the same functions with the same signatures on all of those systems.
+The package provides the same functions with the same signatures on all of those systems.
 In the windows version, functions that can't be made to work, 
-all return a "not implemented" error when called.
+all return an error when called,
+the same error that syscall.Chown returns.
 
 The constant OSName is provided in all environments and
 contains a string giving the name of the operating system on which
@@ -54,9 +59,9 @@ Using this package, my software still compiles under Windows.
 I just need to avoid using some of the features when I run it
 in that environment.
 
-My solution only implements functions that I need for my own work,
-initially Getuid and Setuid.
-I don't plan to implement it on all systems, 
+My solution only implements material that I need for my own work,
+initially the Setuid function and the Stat_t structure.
+I don't plan to implement it for all systems, 
 just the ones I use (initially Windows and Linux).
 If you want something more,
 feel free to fork the project or use it as a guide to write your own.

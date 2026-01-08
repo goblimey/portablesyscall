@@ -15,6 +15,7 @@
 package portablesyscall
 
 import (
+	"io/fs"
 	"syscall"
 )
 
@@ -22,14 +23,32 @@ import (
 // for that system ("windows", "linux" or whatever).
 const OSName = "windows"
 
-// Getuid gets the current user ID.  The Windows version always returns -1
-// and the a syscall.EWINDOWS error.
-func Getuid() (int, error) {
-	return -1, syscall.EWINDOWS
+type Timespec struct {
+	Sec  int64
+	Nsec int64
+}
+
+type Stat_t struct {
+	Dev       uint64
+	Ino       uint64
+	Nlink     uint64
+	Mode      uint32
+	Uid       uint32
+	Gid       uint32
+	X__pad0   int32
+	Rdev      uint64
+	Size      int64
+	Blksize   int64
+	Blocks    int64
+	Atim      Timespec
+	Mtim      Timespec
+	Ctim      Timespec
+	X__unused [3]int64
 }
 
 // Setuid switches the effective user to the user with the given user ID.  The
-// Windows version always returns a syscall.EWINDOWS error.
+// Windows version always returns a syscall.EWINDOWS wrapped in a PathError
+// (which is what os.Chown does in the same situation).
 func Setuid(targetID int) error {
-	return syscall.EWINDOWS
+	return &fs.PathError{Op: "setuid", Err: syscall.EWINDOWS}
 }
