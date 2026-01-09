@@ -17,6 +17,9 @@
 package portablesyscall
 
 import (
+	"errors"
+	"fmt"
+	"os"
 	"syscall"
 
 	"golang.org/x/sys/unix"
@@ -36,4 +39,25 @@ const EWINDOWS syscall.Errno = 536871042
 // Setuid switc hes to the user with the given user ID or returns an error.
 func Setuid(targetID int) error {
 	return unix.Setuid(targetID)
+}
+
+// Stat gets the file info (the inode) of the given file.
+func Stat(f os.File) (*Stat_t, error) {
+
+	fileinfo, statError := os.Stat(f.Name())
+	if statError != nil {
+		return nil, statError
+	}
+
+	s, ok := fileinfo.Sys().(*syscall.Stat_t)
+	if !ok {
+		em := fmt.Sprintf("Stat: %s - stat did not return a syscall.Stat_t", f.Name())
+		return nil, errors.New(em)
+	}
+
+	// We have to return a Stat_t rather than a syscall.Stat_t because the Windows version
+	// of syscall doesn't define that type.
+	stat := Stat_t(*s)
+
+	return &stat, nil
 }

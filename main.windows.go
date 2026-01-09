@@ -16,6 +16,7 @@ package portablesyscall
 
 import (
 	"io/fs"
+	"os"
 	"syscall"
 )
 
@@ -56,4 +57,8 @@ const EWINDOWS = syscall.EWINDOWS
 // (which is what os.Chown does in the same situation).
 func Setuid(targetID int) error {
 	return &fs.PathError{Op: "setuid", Err: EWINDOWS}
+}
+
+func Stat(f os.File) (*Stat_t, error) {
+	return nil, &fs.PathError{Op: "stat", Err: EWINDOWS}
 }
