@@ -10,8 +10,13 @@ doesn't even compile in that environment.
 For example, the windows version of syscall has a Getuid but no Setuid.
 It also has a Chown, which always returns an error.
 
-Other missing material includes the stat_t structure, which is used to find the owner
+Other material missing under Windows includes the stat_t structure, which is used to find the owner
 of a file under Linux.
+
+Meanwhile, the Windows syscall defines a value EWINDOWS which it uses to create
+error values such as the one returned by the Chown function whenever it's called under Windows.  
+That value is not defined in the Linux syscall,
+so any program that references EWINDOWS will not compile under Linux.
 
 I was a Java programmer for many years and one of the features of Java is that compiles to 
 a low-level form which is then interpreted.
@@ -27,11 +32,10 @@ apart from the carbunkle of the system call interface.
 
 My solution 
 is to have a single package with a 
-version for each system that I work with.
-Each file of source code starts with a build tag
-so the appropriate version is compiled on its target system.
-The compiler sorts out which one to use.
-The package provides the same functions with the same signatures on all of those systems.
+version for each system that I work with and
+use build tags to arrange for the appropriate source to be compiled.
+The package provides the same functions with the same signatures on all of those systems
+plus any other material needed.
 In the windows version, functions that can't be made to work, 
 all return an error when called,
 the same error that syscall.Chown returns.
@@ -42,8 +46,10 @@ the package is running -
 "windows", "linux" or whatever, matching the build tag for that system.
 This allows calling software to avoid calling functions under Windows
 that are guaranteed to throw errors.
+(There are other ways to figure out which environment you are running on,
+but this seems the simplest.)
 
-An example of this package in use is my go-stripe-payments website.  
+An example usage of this package is my go-stripe-payments web server.  
 Running an HTTPS server requires a certificate,
 which is impractical for the Windows PC on my desk.
 For example, the certificate should only be readable by the admin user
@@ -67,3 +73,4 @@ If you want something more,
 feel free to fork the project or use it as a guide to write your own.
 Please don't create issues asking me to add functions.  The answer will be no, please create your own project.
 Please don't send pull requests asking me to accept new functions that you've written.
+I will invite you to publish your own version.

@@ -23,6 +23,8 @@ import (
 // for that system ("windows", "linux" or whatever).
 const OSName = "windows"
 
+// Stat_t (and therfore Timespec) is defined in syscall under Linux.
+// Timespec is a dependency of Stat_t.  This is the definition in Go 1.24.1.
 type Timespec struct {
 	Sec  int64
 	Nsec int64
@@ -46,9 +48,12 @@ type Stat_t struct {
 	X__unused [3]int64
 }
 
+// EWINDOWS is defined in syscall under Windows but not under Linux.
+const EWINDOWS = syscall.EWINDOWS
+
 // Setuid switches the effective user to the user with the given user ID.  The
 // Windows version always returns a syscall.EWINDOWS wrapped in a PathError
 // (which is what os.Chown does in the same situation).
 func Setuid(targetID int) error {
-	return &fs.PathError{Op: "setuid", Err: syscall.EWINDOWS}
+	return &fs.PathError{Op: "setuid", Err: EWINDOWS}
 }

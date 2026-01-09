@@ -29,9 +29,11 @@ const OSName = "linux"
 type Timespec syscall.Timespec
 type Stat_t syscall.Stat_t
 
+// EWINDOWS is defined in the Windows syscall.  Used to create errors.  The
+// value is the one defined in Go 1.24.1.
+const EWINDOWS = 536871042
+
 // Setuid switches to the user with the given user ID or returns an error.
 func Setuid(targetID int) error {
-
 	return unix.Setuid(targetID)
-
 }
