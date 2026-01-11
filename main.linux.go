@@ -42,21 +42,24 @@ func Setuid(targetID int) error {
 }
 
 // Stat gets the file info (the inode) of the given file.
-func Stat(f os.File) (*Stat_t, error) {
+func Stat(f *os.File) (*Stat_t, error) {
 
 	fileinfo, statError := os.Stat(f.Name())
 	if statError != nil {
 		return nil, statError
 	}
 
+	// This line would produce a syntax error if the target was Windows because
+	// the Windows version of syscall doesn't define Stat_t.
 	s, ok := fileinfo.Sys().(*syscall.Stat_t)
 	if !ok {
 		em := fmt.Sprintf("Stat: %s - stat did not return a syscall.Stat_t", f.Name())
 		return nil, errors.New(em)
 	}
 
-	// We have to return a Stat_t rather than a syscall.Stat_t because the Windows version
-	// of syscall doesn't define that type.
+	// We have to return a portablesyscall.Stat_t rather than a syscall.Stat_t because
+	// the Windows version of syscall doesn't define that Stat_t and any reference to
+	// it will cause a compilation failure when the target is Windows.
 	stat := Stat_t(*s)
 
 	return &stat, nil

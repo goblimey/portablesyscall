@@ -49,7 +49,8 @@ type Stat_t struct {
 	X__unused [3]int64
 }
 
-// EWINDOWS is defined in syscall under Windows but not under Linux.
+// This line would produce a syntax error if the target was Linux because
+// the Linux version of syscall doesn't define EWINDOWS.
 const EWINDOWS = syscall.EWINDOWS
 
 // Setuid switches the effective user to the user with the given user ID.  The
@@ -59,6 +60,6 @@ func Setuid(targetID int) error {
 	return &fs.PathError{Op: "setuid", Err: EWINDOWS}
 }
 
-func Stat(f os.File) (*Stat_t, error) {
+func Stat(f *os.File) (*Stat_t, error) {
 	return nil, &fs.PathError{Op: "stat", Err: EWINDOWS}
 }
